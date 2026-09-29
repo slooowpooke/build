@@ -1,0 +1,652 @@
+<!doctype html><html lang="ru"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><style>[hidden]{display:none!important}body{margin:0}</style></head><body>
+<title>Концепты робот-мойки DKR 360</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Onest:wght@400;500;600;800&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+:root{
+  --bg:#eef0f2; --panel:#ffffff; --ink:#15181c; --muted:#5b636d; --line:#dde1e5; --field:#f4f5f7;
+  --accent:#d8231f; --accent-ink:#fff; --ok:#1d7f48; --ok-bg:#e3f3ea; --row:#f7f8f9;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){ --bg:#101215; --panel:#181b1f; --ink:#e8ebee; --muted:#9aa2ac; --line:#2a2f35; --field:#20242a; --accent:#ff4b3e; --accent-ink:#1a0a09; --ok:#56c98a; --ok-bg:#16301f; --row:#1d2126; color-scheme:dark; }
+}
+:root[data-theme="dark"]{ --bg:#101215; --panel:#181b1f; --ink:#e8ebee; --muted:#9aa2ac; --line:#2a2f35; --field:#20242a; --accent:#ff4b3e; --accent-ink:#1a0a09; --ok:#56c98a; --ok-bg:#16301f; --row:#1d2126; color-scheme:dark; }
+html,body{height:100%}
+body{background:var(--bg);color:var(--ink);font-family:"Onest",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;font-size:14px;overflow:hidden}
+.app{height:100%;display:grid;grid-template-columns:1fr 440px;grid-template-rows:auto 1fr}
+header{grid-column:1/-1;display:flex;align-items:center;gap:12px;padding:10px 16px;border-bottom:1px solid var(--line);background:var(--panel);flex-wrap:wrap}
+.brand{display:flex;flex-direction:column;margin-right:8px}
+.brand b{font-weight:800;font-size:16px;letter-spacing:.01em}
+.brand span{color:var(--muted);font-size:12px}
+.tabs{display:flex;gap:8px;flex-wrap:nowrap;overflow-x:auto;flex:1;min-width:0;padding-bottom:2px}
+.tab{flex:0 0 auto}
+header{flex-wrap:nowrap}
+@media (max-width:900px){header{flex-wrap:wrap}.tabs{order:3;flex-basis:100%}}
+.tab{display:grid;gap:1px;text-align:left;border:1px solid var(--line);background:var(--field);color:var(--ink);border-radius:10px;padding:7px 12px;cursor:pointer;font:inherit}
+.tab b{font-size:14px}
+.tab small{color:var(--muted);font-size:11.5px}
+.tab .sw{display:inline-flex;gap:3px;margin-right:6px;vertical-align:middle}
+.tab .sw i{width:10px;height:10px;border-radius:2px;display:inline-block;border:1px solid rgba(0,0,0,.15)}
+.tab.on{border-color:var(--ink);box-shadow:inset 0 0 0 1px var(--ink)}
+.btn{border:1px solid var(--line);background:var(--field);color:var(--ink);border-radius:8px;padding:7px 12px;font:inherit;font-weight:500;cursor:pointer}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:var(--accent-ink);font-weight:600}
+.btn:focus-visible,.tab:focus-visible,input:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.viewport{position:relative;min-height:0;min-width:0}
+canvas#c{display:block;width:100%;height:100%;touch-action:none}
+.views{position:absolute;left:12px;top:12px;display:flex;gap:6px;flex-wrap:wrap}
+.views .btn{background:rgba(255,255,255,.9);color:#15181c;border-color:rgba(0,0,0,.12);padding:6px 10px;font-size:13px}
+.views .btn.on{background:#15181c;color:#fff;border-color:#15181c}
+.caption{position:absolute;left:12px;bottom:12px;max-width:min(520px,calc(100% - 24px));background:rgba(21,24,28,.84);color:#fff;border-radius:10px;padding:10px 14px;pointer-events:none}
+.caption b{font-size:15px}
+.caption p{margin:4px 0 0;font-size:12.5px;line-height:1.45;color:#d9dde2}
+.loading{position:absolute;inset:0;display:grid;place-items:center;color:#fff;background:#9fb4c6}
+.loading[hidden]{display:none}
+aside{background:var(--panel);border-left:1px solid var(--line);overflow-y:auto;padding-block:4px 28px;padding-inline:16px}
+section{padding-block:14px;border-bottom:1px solid var(--line);display:grid;gap:10px}
+section:last-child{border-bottom:0}
+h2{margin:0;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.09em;color:var(--muted)}
+.kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.kpi{background:var(--field);border-radius:8px;padding:8px 10px;display:grid;gap:2px}
+.kpi span{font-size:11px;color:var(--muted)}
+.kpi b{font-family:"JetBrains Mono",ui-monospace,monospace;font-size:15px;font-variant-numeric:tabular-nums}
+.row{display:grid;grid-template-columns:1fr auto;align-items:center;gap:4px 10px}
+.row label{font-size:13px}
+.row output{font-family:"JetBrains Mono",ui-monospace,monospace;font-size:12px;color:var(--muted)}
+.row input{grid-column:1/-1;width:100%;accent-color:var(--accent)}
+.fit{display:flex;gap:6px;flex-wrap:wrap}
+.fit span{background:var(--ok-bg);color:var(--ok);border-radius:999px;padding:3px 9px;font-size:12px;font-weight:600}
+.tablewrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:12.5px}
+th{text-align:left;font-weight:600;color:var(--muted);font-size:11px;text-transform:uppercase;letter-spacing:.06em;padding:6px 6px;border-bottom:1px solid var(--line)}
+td{padding:6px;border-bottom:1px solid var(--line);vertical-align:top}
+td.q{text-align:right;font-family:"JetBrains Mono",ui-monospace,monospace;font-variant-numeric:tabular-nums;white-space:nowrap}
+td small{display:block;color:var(--muted);font-size:11px}
+tr.grp td{background:var(--row);font-weight:700;font-size:12px;letter-spacing:.02em}
+tr.tot td{font-weight:700}
+.note{font-size:12px;color:var(--muted);line-height:1.5;margin:0}
+.bar{display:flex;gap:8px;flex-wrap:wrap}
+.toast{font-size:12px;color:var(--ok);align-self:center}
+.modal{position:fixed;inset:0;background:rgba(10,12,14,.72);display:grid;place-items:center;padding:16px;z-index:10}
+.modal[hidden]{display:none}
+.modal .card{background:var(--panel);border-radius:12px;padding:14px;max-width:min(960px,100%);display:grid;gap:10px}
+.modal img{width:100%;border-radius:8px;display:block}
+.modal .mbar{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
+.modal p{margin:0;font-size:13px;color:var(--muted)}
+textarea.copy{position:absolute;left:-9999px}
+@media (max-width:900px){
+  body{overflow:auto}
+  .app{grid-template-columns:1fr;grid-template-rows:auto 56vh auto;height:auto}
+  aside{border-left:0;border-top:1px solid var(--line);overflow:visible}
+  .kpis{grid-template-columns:repeat(2,1fr)}
+}
+</style>
+
+<div class="app">
+  <header>
+    <div class="brand"><b>Концепты робот-мойки</b><span>1 пост · DKR 360 · 5 вариантов</span></div>
+    <div class="tabs" id="tabs"></div>
+    <button class="btn primary" id="shot">Снимок для КП</button>
+  </header>
+
+  <div class="viewport" id="vp">
+    <canvas id="c"></canvas>
+    <div class="loading" id="loading">Загружаю 3D…</div>
+    <div class="views" id="views">
+      <button class="btn on" data-view="iso">3/4</button>
+      <button class="btn" data-view="front">Въезд</button>
+      <button class="btn" data-view="side">Сбоку</button>
+      <button class="btn" data-view="back">Выезд</button>
+      <button class="btn" data-view="top">План</button>
+      <button class="btn" data-view="inside">Внутри</button>
+    </div>
+    <div class="caption" id="caption"></div>
+  </div>
+
+  <aside>
+    <section>
+      <h2>Итог по концепту</h2>
+      <div class="kpis" id="kpis"></div>
+      <div class="fit" id="fit"></div>
+    </section>
+    <section>
+      <h2>Размеры, м</h2>
+      <div class="row"><label for="L">Длина бокса (вдоль проезда)</label><output id="oL"></output><input type="range" id="L" min="8" max="11" step="0.1"></div>
+      <div class="row"><label for="Wp">Ширина моечного бокса</label><output id="oWp"></output><input type="range" id="Wp" min="5" max="6.5" step="0.1"></div>
+      <div class="row"><label for="Wt">Ширина техзоны</label><output id="oWt"></output><input type="range" id="Wt" min="2.5" max="4" step="0.1"></div>
+    </section>
+    <section>
+      <h2>Ведомость материалов</h2>
+      <div class="tablewrap"><table id="tbl"></table></div>
+      <div class="bar"><button class="btn" id="copy">Скопировать таблицу для Excel</button><span class="toast" id="toast" hidden>Скопировано</span></div>
+      <p class="note">Предварительный расчёт. Каркас и плита считаются по той же схеме, что в проектах «Окружная, 17» и «9 × 7,5 м»: стойки из трубы 100×100×5 с шагом 3 м, плита B25 200 мм. На проекте «Окружная» формулы сходятся со спецификацией в пределах 3%. Это верхняя оценка по металлу: в проекте «9 × 7,5 м» того же размера за счёт прогонов из швеллера вышло 2,7 т, так что при разработке КР каркас можно облегчить на 20–35%. Площади панелей даны без запаса, закупать с запасом 5–10%. Сечения подтверждаются расчётом КР под снеговой и ветровой район участка.</p>
+    </section>
+  </aside>
+</div>
+
+<div class="modal" id="modal" hidden>
+  <div class="card">
+    <img id="shotImg" alt="Снимок концепта">
+    <div class="mbar"><p>Правый клик по картинке → «Сохранить изображение как…» или «Скопировать».</p><button class="btn" id="closeShot">Закрыть</button></div>
+  </div>
+</div>
+<textarea class="copy" id="copyArea" aria-hidden="true" tabindex="-1"></textarea>
+
+<script type="importmap">
+{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"}}
+</script>
+<script type="module">
+import * as THREE from 'three';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+import { RoundedBoxGeometry } from 'three/addons/geometries/RoundedBoxGeometry.js';
+
+/* ================= concepts ================= */
+const CONCEPTS = {
+  portal: {
+    name:'«Портал»', tag:'графит и красная рамка въезда', sw:['#3b3e44','#d8231f','#1b1d20'],
+    desc:'Строгий графитовый объём. Въезд и выезд обрамлены выступающими красными порталами с LED-контуром, вывеска стоит на портале. Сбоку витраж на 3 м: машину в работе видно с дороги.',
+    L:9, Wp:5, Wt:2.5, Hw:4.0, Hf:1.0, wall:'#3b3e44', fascia:'#1b1d20', text:'#ffffff', accent:'#d8231f',
+    sign:'МОЙКА РОБОТ', badge:true, glass:'full', gate:'glass', roof:'flat', feature:'portal'
+  },
+  vitrina: {
+    name:'«Витрина»', tag:'светлый объём, стекло во всю высоту', sw:['#e6e7e9','#16181b','#22c7ff'],
+    desc:'Светлое здание с боковой стеной, почти целиком стеклянной. Над въездом консольный козырёк 3,2 м: под ним терминал и очередь, машина не мокнет. Чёрный фриз и голубая LED-линия хорошо видны в темноте.',
+    L:9, Wp:5, Wt:2.5, Hw:4.2, Hf:0.8, wall:'#e3e5e7', fascia:'#16181b', text:'#ffffff', accent:'#22c7ff',
+    sign:'МОЙКА РОБОТ 24', badge:false, glass:'tall', gate:'glass', roof:'flat', feature:'canopy'
+  },
+  loft: {
+    name:'«Лофт»', tag:'тёмный профиль, дерево, двускатная кровля', sw:['#2e3833','#b9793f','#f3efe6'],
+    desc:'Тёмный профлист и тёплые ламели под дерево на техзоне. Двускатная кровля 12° без фриза, ленточное окно под потолком. Самый недорогой вариант: нет алюкобонда и LED-контуров.',
+    L:9, Wp:5, Wt:2.5, Hw:4.1, Hf:0, wall:'#2e3833', fascia:null, text:'#f3efe6', accent:'#b9793f',
+    sign:'МОЙКА · РОБОТ', badge:false, glass:'ribbon', gate:'window', roof:'gable', feature:'planken'
+  },
+  shed: {
+    name:'«Скат»', tag:'аттик-клин и оранжевые рёбра', sw:['#eef0f1','#ff7a1a','#2a2d31'],
+    desc:'Белый объём с аттиком, который поднимается к въезду до 6 м и выходит над воротами козырьком на 1,2 м. Витраж вдоль бокса разбит оранжевыми рёбрами, поэтому здание выглядит динамичным и хорошо заметно с трассы.',
+    L:9, Wp:5, Wt:2.5, Hw:4.0, Hf:0, wall:'#eef0f1', fascia:'#f7f8f9', text:'#2a2d31', accent:'#ff7a1a',
+    sign:'МОЙКА РОБОТ', badge:true, glass:'full', gate:'glass', roof:'shed', feature:'fins'
+  },
+  pav: {
+    name:'«Павильон»', tag:'парящая кровля с деревянной подшивкой', sw:['#f3f1ec','#a0693a','#0f766e'],
+    desc:'Тонкая белая плита кровли нависает на 1,6 м со всех сторон и опирается на четыре тонкие колонны. Снизу она подшита деревом со встроенными светильниками. У ворот, терминала и дверей сухо, здание похоже на павильон АЗС премиум-класса.',
+    L:9, Wp:5, Wt:2.5, Hw:4.0, Hf:.45, wall:'#f3f1ec', fascia:'#fbfbfa', text:'#0f766e', accent:'#0f766e',
+    sign:'МОЙКА РОБОТ', badge:false, glass:'tall', gate:'glass', roof:'pav', feature:'none'
+  },
+};
+let key = 'portal';
+let S = {...CONCEPTS[key]};
+
+/* ================= renderer ================= */
+const vp = document.getElementById('vp'), canvas = document.getElementById('c');
+const renderer = new THREE.WebGLRenderer({canvas, antialias:true, preserveDrawingBuffer:true});
+renderer.setPixelRatio(Math.min(devicePixelRatio,2));
+renderer.shadowMap.enabled = true; renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+renderer.toneMapping = THREE.ACESFilmicToneMapping; renderer.toneMappingExposure = 1.05;
+const scene = new THREE.Scene();
+{
+  const c = document.createElement('canvas'); c.width = 4; c.height = 256; const g = c.getContext('2d');
+  const gr = g.createLinearGradient(0,0,0,256); gr.addColorStop(0,'#6f9fcf'); gr.addColorStop(.55,'#b9d2e6'); gr.addColorStop(1,'#e8eef2');
+  g.fillStyle = gr; g.fillRect(0,0,4,256); const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; scene.background = t;
+}
+scene.fog = new THREE.Fog(0xdde7ee, 45, 130);
+const camera = new THREE.PerspectiveCamera(40, 1, .1, 400);
+const controls = new OrbitControls(camera, canvas);
+controls.enableDamping = true; controls.maxPolarAngle = Math.PI*.495; controls.minDistance = .5; controls.maxDistance = 70;
+scene.add(new THREE.HemisphereLight(0xe4f0ff, 0x8f8a80, 1.0));
+const sun = new THREE.DirectionalLight(0xfff6ea, 2.4);
+sun.position.set(14,22,16); sun.castShadow = true; sun.shadow.mapSize.set(2048,2048); sun.shadow.bias = -.0004; sun.shadow.normalBias = .03;
+scene.add(sun, sun.target);
+
+/* ================= textures ================= */
+function canvasTex(w,h,draw,rep){
+  const c = document.createElement('canvas'); c.width = w; c.height = h; draw(c.getContext('2d'),w,h);
+  const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; t.anisotropy = 8;
+  if (rep) t.wrapS = t.wrapT = THREE.RepeatWrapping; return t;
+}
+const paveTex = canvasTex(512,512,(g,w,h)=>{ g.fillStyle='#b4b6b6'; g.fillRect(0,0,w,h);
+  for (let y=0;y<h;y+=16){ const off=(y/16)%2?16:0; for (let x=-32;x<w+32;x+=32){ const s=196+Math.floor(Math.random()*18); g.fillStyle=`rgb(${s},${s+1},${s+2})`; g.fillRect(x+off+1,y+1,30,14);} } }, true);
+paveTex.repeat.set(30,30);
+const panelTex = canvasTex(256,256,(g,w,h)=>{ g.fillStyle='#fff'; g.fillRect(0,0,w,h); g.fillStyle='rgba(0,0,0,.28)'; g.fillRect(0,0,w,5); g.fillStyle='rgba(255,255,255,.6)'; g.fillRect(0,5,w,2); g.fillStyle='rgba(0,0,0,.06)'; g.fillRect(0,0,2,h); }, true);
+const profTex = canvasTex(256,64,(g,w,h)=>{ g.fillStyle='#fff'; g.fillRect(0,0,w,h);
+  for (let x=0;x<w;x+=51){ const gr=g.createLinearGradient(x,0,x+51,0); gr.addColorStop(0,'rgba(0,0,0,.30)'); gr.addColorStop(.25,'rgba(255,255,255,.25)'); gr.addColorStop(.5,'rgba(0,0,0,0)'); gr.addColorStop(.8,'rgba(0,0,0,.08)'); gr.addColorStop(1,'rgba(0,0,0,.30)'); g.fillStyle=gr; g.fillRect(x,0,51,h); } }, true);
+const woodTex = canvasTex(256,256,(g,w,h)=>{ g.fillStyle='#2a1c12'; g.fillRect(0,0,w,h);
+  const pw = 28; for (let x=0;x<w;x+=pw+4){ const r=170+Math.random()*30|0, gg=112+Math.random()*25|0, b=60+Math.random()*18|0; g.fillStyle=`rgb(${r},${gg},${b})`; g.fillRect(x,0,pw,h);
+    for (let k=0;k<6;k++){ g.fillStyle=`rgba(80,45,20,${.08+Math.random()*.1})`; g.fillRect(x+Math.random()*pw,0,1+Math.random()*2,h);} } }, true);
+function gateTexture(style){ return canvasTex(256,256,(g,w,h)=>{ const n=6, sh=h/n; g.fillStyle='#f1f2f3'; g.fillRect(0,0,w,h);
+  for (let i=0;i<n;i++){
+    if (style==='glass'){ g.fillStyle='#2b2f34'; g.fillRect(0,i*sh,w,sh); g.fillStyle='#48677d'; for (let x=6;x<w;x+=64) g.fillRect(x,i*sh+5,56,sh-10);
+      g.fillStyle='rgba(255,255,255,.18)'; for (let x=16;x<w;x+=64){ g.beginPath(); g.moveTo(x,i*sh+6); g.lineTo(x+12,i*sh+6); g.lineTo(x-4,i*sh+sh-6); g.lineTo(x-16,i*sh+sh-6); g.fill(); } continue; }
+    const gr=g.createLinearGradient(0,i*sh,0,(i+1)*sh); gr.addColorStop(0,'#fbfbfc'); gr.addColorStop(1,'#d9dcdf'); g.fillStyle=gr; g.fillRect(0,i*sh+2,w,sh-4); g.fillStyle='#9ea3a8'; g.fillRect(0,i*sh,w,2);
+  }
+  if (style==='window'){ g.fillStyle='#35505f'; for (let x=14;x<w-30;x+=48) g.fillRect(x,sh+10,34,sh-20); } }); }
+const gateTexs = {glass:gateTexture('glass'), window:gateTexture('window')};
+const grateTex = canvasTex(64,256,(g,w,h)=>{ g.fillStyle='#2d3033'; g.fillRect(0,0,w,h); g.fillStyle='#6b7075'; for (let y=0;y<h;y+=8) g.fillRect(0,y,w,3); }, true);
+
+const M = {
+  ground:new THREE.MeshStandardMaterial({map:paveTex, roughness:.95}),
+  asphalt:new THREE.MeshStandardMaterial({color:0x44474a, roughness:.9}),
+  paint:new THREE.MeshStandardMaterial({color:0xf2f2f2, roughness:.7}),
+  plinth:new THREE.MeshStandardMaterial({color:0xa8a8a2, roughness:.9}),
+  floorPost:new THREE.MeshStandardMaterial({color:0xb7bbbe, roughness:.35}),
+  floorTech:new THREE.MeshStandardMaterial({color:0xd8d3cb, roughness:.6}),
+  grate:new THREE.MeshStandardMaterial({map:grateTex, roughness:.6, metalness:.4}),
+  glass:new THREE.MeshStandardMaterial({color:0x9cc3de, transparent:true, opacity:.26, roughness:.05, metalness:.2, depthWrite:false}),
+  frame:new THREE.MeshStandardMaterial({color:0x2b2f34, roughness:.4, metalness:.6}),
+  frameWhite:new THREE.MeshStandardMaterial({color:0xf4f4f2, roughness:.5}),
+  door:new THREE.MeshStandardMaterial({color:0x3a3e44, roughness:.5, metalness:.4}),
+  roof:new THREE.MeshStandardMaterial({color:0x8d9196, roughness:.7}),
+  roofDark:new THREE.MeshStandardMaterial({color:0x2a2c2e, roughness:.6, metalness:.3}),
+  steel:new THREE.MeshStandardMaterial({color:0xb9bec3, roughness:.35, metalness:.75}),
+  steelDark:new THREE.MeshStandardMaterial({color:0x6d7379, roughness:.4, metalness:.7}),
+  shell:new THREE.MeshStandardMaterial({color:0xe6e8ea, roughness:.3, metalness:.2}),
+  red:new THREE.MeshStandardMaterial({color:0xd8231f, roughness:.4, metalness:.2}),
+  led:new THREE.MeshStandardMaterial({color:0x0a2a3a, emissive:0x33ccff, emissiveIntensity:2.2}),
+  ledWhite:new THREE.MeshStandardMaterial({color:0xffffff, emissive:0xffffff, emissiveIntensity:2.0}),
+  lamp:new THREE.MeshStandardMaterial({color:0xffffff, emissive:0xffffff, emissiveIntensity:1.6}),
+  screen:new THREE.MeshStandardMaterial({color:0x08131c, emissive:0x2f8fd8, emissiveIntensity:1.2}),
+  spray:new THREE.MeshBasicMaterial({color:0xffffff, transparent:true, opacity:.16, depthWrite:false, side:THREE.DoubleSide}),
+  tank:new THREE.MeshStandardMaterial({color:0x2f6fb0, roughness:.5}),
+  cabinet:new THREE.MeshStandardMaterial({color:0xd5d8db, roughness:.5, metalness:.3}),
+  desk:new THREE.MeshStandardMaterial({color:0xb08a62, roughness:.7}),
+  tire:new THREE.MeshStandardMaterial({color:0x1b1c1e, roughness:.85}),
+  carGlass:new THREE.MeshStandardMaterial({color:0x1b232c, roughness:.08, metalness:.6}),
+  head:new THREE.MeshStandardMaterial({color:0xffffff, emissive:0xfff3d6, emissiveIntensity:1.4}),
+  tail:new THREE.MeshStandardMaterial({color:0x550000, emissive:0xff2020, emissiveIntensity:1.2}),
+  inner:new THREE.MeshStandardMaterial({color:0xeceeef, roughness:.7}),
+};
+const site = new THREE.Group(); scene.add(site);
+{ const g = new THREE.Mesh(new THREE.PlaneGeometry(120,120), M.ground); g.rotation.x = -Math.PI/2; g.receiveShadow = true; site.add(g); }
+const road = new THREE.Group(); site.add(road);
+
+/* ================= helpers ================= */
+let owned = [];
+const own = x => (owned.push(x), x);
+function box(w,h,d,mat,x,y,z,p,cast=true){ const m = new THREE.Mesh(own(new THREE.BoxGeometry(w,h,d)), mat); m.position.set(x,y,z); m.castShadow = cast; m.receiveShadow = true; p.add(m); return m; }
+function rbox(w,h,d,r,mat,x,y,z,p){ const m = new THREE.Mesh(own(new RoundedBoxGeometry(w,h,d,3,r)), mat); m.position.set(x,y,z); m.castShadow = m.receiveShadow = true; p.add(m); return m; }
+function texMat(base, rx, ry, color, extra={}){ const t = own(base.clone()); t.needsUpdate = true; t.repeat.set(rx, ry); return own(new THREE.MeshStandardMaterial(Object.assign({color, map:t, roughness:.55, metalness:.15}, extra))); }
+const wallMat = (len,h) => S.roof==='gable' ? texMat(profTex, Math.max(len,.2)/1.0, 1, S.wall, {metalness:.35, roughness:.45}) : texMat(panelTex, Math.max(len,.2)/1.2, Math.max(h,.2)/1.0, S.wall);
+const innerMat = (len,h) => texMat(panelTex, Math.max(len,.2)/1.2, Math.max(h,.2)/1.0, '#e9ebec');
+const woodMat = (len,h) => texMat(woodTex, Math.max(len,.2)/1.2, 1, '#ffffff', {roughness:.8, metalness:0});
+function wallX(g,z,xa,xb,H,t,ops,mf){ ops = ops.filter(o=>o.b>o.a).sort((p,q)=>p.a-q.a); let c = xa;
+  const seg=(a,b,lo,hi)=>{ if (b-a<.005||hi-lo<.005) return; box(b-a,hi-lo,t,mf(b-a,hi-lo),(a+b)/2,(lo+hi)/2,z,g); };
+  for (const o of ops){ const a=Math.max(o.a,xa), b=Math.min(o.b,xb); if (b<=a) continue; seg(c,a,0,H); seg(a,b,0,o.lo); seg(a,b,o.hi,H); c=b; } seg(c,xb,0,H); }
+function wallZ(g,x,za,zb,H,t,ops,mf){ ops = ops.filter(o=>o.b>o.a).sort((p,q)=>p.a-q.a); let c = za;
+  const seg=(a,b,lo,hi)=>{ if (b-a<.005||hi-lo<.005) return; box(t,hi-lo,b-a,mf(b-a,hi-lo),x,(lo+hi)/2,(a+b)/2,g); };
+  for (const o of ops){ seg(c,o.a,0,H); seg(o.a,o.b,0,o.lo); seg(o.a,o.b,o.hi,H); c=o.b; } seg(c,zb,0,H); }
+function signTex(wm,hm){ const H=256, W=Math.min(4096, Math.round(H*wm/hm));
+  return own(canvasTex(W,H,(g,w,h)=>{ g.clearRect(0,0,w,h); let left=h*.2, right=w-h*.2;
+    if (S.badge){ const r=h*.36; for (const cx of [h*.2+r, w-h*.2-r]){ g.fillStyle=S.accent; g.beginPath(); g.arc(cx,h/2,r,0,Math.PI*2); g.fill(); g.fillStyle='#fff'; g.textAlign='center'; g.font=`800 ${h*.36}px Onest, Arial`; g.fillText('24',cx,h/2+h*.08); g.font=`600 ${h*.11}px Onest, Arial`; g.fillText('ЧАСА',cx,h/2+h*.23);} left=h*.4+r*2; right=w-h*.4-r*2; }
+    let fs=h*.56; const txt=S.sign; g.font=`800 ${fs}px Onest, Arial`; const mw=g.measureText(txt).width; if (mw>right-left){ fs*=(right-left)/mw; g.font=`800 ${fs}px Onest, Arial`; }
+    g.fillStyle=S.text; g.textAlign='center'; g.textBaseline='middle'; g.fillText(txt,(left+right)/2,h/2+fs*.04); })); }
+function signPlane(g, w, h, x, y, z, rotY=0){
+  const m = own(new THREE.MeshStandardMaterial({map:signTex(w,h), transparent:true, emissive:0xffffff, emissiveIntensity:.25, roughness:.4})); m.emissiveMap = m.map;
+  const p = new THREE.Mesh(own(new THREE.PlaneGeometry(w,h)), m); p.position.set(x,y,z); p.rotation.y = rotY; g.add(p); }
+function makeCar(color){ const car = new THREE.Group(); const paint = own(new THREE.MeshStandardMaterial({color, roughness:.25, metalness:.55}));
+  rbox(1.8,.62,4.45,.14,paint,0,.56,0,car); rbox(1.56,.56,2.35,.16,M.carGlass,0,1.1,-.2,car); rbox(1.46,.07,1.9,.03,paint,0,1.39,-.25,car);
+  for (const sx of [-.84,.84]) for (const sz of [-1.42,1.42]){ const w = new THREE.Mesh(own(new THREE.CylinderGeometry(.33,.33,.24,24)), M.tire); w.rotation.z = Math.PI/2; w.position.set(sx,.33,sz); w.castShadow = true; car.add(w); }
+  for (const sx of [-.6,.6]){ box(.34,.1,.04,M.head,sx,.7,2.23,car,false); box(.34,.1,.04,M.tail,sx,.74,-2.23,car,false); } return car; }
+function terminal(g,x,z){ rbox(.5,1.25,.4,.05,M.door,x,.63,z,g); box(.34,.44,.02,M.screen,x,1.0,z+.205,g,false); box(.52,.06,.42,own(new THREE.MeshStandardMaterial({color:S.accent})),x,1.29,z,g,false); }
+
+/* ================= shared layout (used by 3D and by calc) ================= */
+function layout(){
+  const L=S.L, Wp=S.Wp, Wt=S.Wt, W=Wp+Wt, Hw=S.Hw, t=.12;
+  const gateW = Math.min(3.5, Wp-.6), gateH = 3.0, cx = Wp/2, gx0 = cx-gateW/2, gx1 = cx+gateW/2;
+  const front = [{a:gx0,b:gx1,lo:0,hi:gateH,k:'gate'}], back = [{a:gx0,b:gx1,lo:0,hi:gateH,k:'gate'}];
+  const doors = [], wins = [];
+  const d0 = W-.35-.95; front.push({a:d0,b:d0+.95,lo:0,hi:2.1,k:'door'}); doors.push({x:d0+.475,z:L,w:.95,h:2.1});
+  front.push({a:Wp+.35,b:Wp+1.25,lo:.9,hi:2.1,k:'win'}); wins.push({x:Wp+.8,w:.9,lo:.9,hi:2.1});
+  back.push({a:W-1.25,b:W-.3,lo:0,hi:2.1,k:'door'}); doors.push({x:W-.775,z:0,w:.95,h:2.1});
+  let side = [];
+  if (S.glass==='full') side = [{a:.3,b:L-.3,lo:0,hi:3.0}];
+  if (S.glass==='tall') side = [{a:.3,b:L-.3,lo:.25,hi:Hw-.25}];
+  if (S.glass==='ribbon') side = [{a:.7,b:L-.7,lo:2.1,hi:Math.min(3.1,Hw-.3)}];
+  const part = [{a:L-2.3,b:L-.9,lo:.9,hi:2.2}];
+  const opPart = [{a:Wp+.3,b:Wp+1.2,lo:0,hi:2.05}];
+  const pitch = 12*Math.PI/180, rise = S.roof==='gable' ? (W/2)*Math.tan(pitch) : 0;
+  return {L,Wp,Wt,W,Hw,Hf:S.Hf,t,gateW,gateH,cx,gx0,gx1,front,back,doors,wins,side,part,opPart,pitch,rise};
+}
+
+/* ================= build ================= */
+let bld = null, anim = {};
+function build(){
+  if (bld){ scene.remove(bld); for (const o of owned) o.dispose && o.dispose(); owned = []; }
+  const Y = layout(); const {L,Wp,Wt,W,Hw,Hf,t,gateW,gateH,cx} = Y;
+  const g = new THREE.Group(); g.position.set(-W/2,0,-L/2); scene.add(g); bld = g; anim = {};
+  bld.userData = Y;
+
+  box(W+.5,.1,L+.5,M.plinth,W/2,0,L/2,g,false);
+  box(Wp-t,.01,L-2*t,M.floorPost,Wp/2,.055,L/2,g,false);
+  box(Wt-t,.01,L-2*t,M.floorTech,Wp+Wt/2,.055,L/2,g,false);
+  box(.7,.012,L-2.8,M.grate,cx,.06,L/2,g,false);
+  for (const z of [L+1.1,-1.1]) box(gateW+1,.03,2,M.plinth,cx,.015,z,g,false);
+
+  // exterior walls
+  wallX(g,L-t/2,0,W,Hw,t,Y.front,wallMat);
+  wallX(g,t/2,0,W,Hw,t,Y.back,wallMat);
+  wallZ(g,t/2,0,L,Hw,t,Y.side,wallMat);
+  wallZ(g,W-t/2,0,L,Hw,t,[],wallMat);
+  // partitions
+  wallZ(g,Wp,t,L-t,Hw,.1,Y.part,innerMat);
+  box(.02,1.3,1.4,M.glass,Wp,1.55,L-1.6,g,false);
+  wallX(g,L-2.6,Wp+.05,W-t,Hw,.1,Y.opPart,innerMat);
+  box(.6,.75,1.2,M.desk,Wp+.4,.4,L-1.6,g); box(.05,.36,.55,M.screen,Wp+.2,1.0,L-1.6,g);
+  const r = Math.min(.6,(Wt-.5)/2);
+  for (let i=0;i<Math.min(3,Math.floor((L-3.3)/1.4));i++){ const m = new THREE.Mesh(own(new THREE.CylinderGeometry(r,r,1.7,28)), M.tank); m.position.set(W-t-r-.1,.9,.5+r+i*1.4); m.castShadow = true; g.add(m); }
+  box(.45,1.9,.8,M.cabinet,Wp+.3,1.0,L-3.3,g);
+
+  // doors, windows
+  for (const d of Y.doors){ const zz = d.z===L ? L+.01 : -.01; box(d.w,d.h,.05,M.door,d.x,d.h/2,zz,g); box(d.w+.1,.06,.08,M.frame,d.x,d.h+.03,zz,g,false); }
+  for (const w of Y.wins){ box(w.w,w.hi-w.lo,.02,M.glass,w.x,(w.lo+w.hi)/2,L-t/2,g,false);
+    for (const dx of [-w.w/2,0,w.w/2]) box(.06,w.hi-w.lo,.14,M.frame,w.x+dx,(w.lo+w.hi)/2,L-t/2,g,false);
+    for (const y of [w.lo,w.hi]) box(w.w+.06,.06,.14,M.frame,w.x,y,L-t/2,g,false); }
+  // gates (open)
+  const gm = own(new THREE.MeshStandardMaterial({map:gateTexs[S.gate], roughness:.3, metalness:.3}));
+  for (const side of [1,-1]){ const zw = side>0 ? L-t/2 : t/2; const d = Math.min(gateH, L/2-.3);
+    box(gateW,.05,d,gm,cx,gateH+.08,zw-side*(d/2+.05),g);
+    for (const z of [side>0?L+.02:-.02]){ box(.08,gateH+.06,.08,M.frame,Y.gx0-.04,gateH/2,z,g,false); box(.08,gateH+.06,.08,M.frame,Y.gx1+.04,gateH/2,z,g,false); box(gateW+.16,.08,.08,M.frame,cx,gateH+.04,z,g,false); } }
+
+  // side glazing
+  if (Y.side.length){ const o = Y.side[0], len = o.b-o.a, h = o.hi-o.lo, fm = S.glass==='ribbon' ? M.frameWhite : M.frame;
+    box(.02,h,len,M.glass,t/2,(o.lo+o.hi)/2,(o.a+o.b)/2,g,false);
+    const step = S.glass==='tall' ? 1.5 : S.glass==='ribbon' ? 1.3 : .9, n = Math.max(2,Math.round(len/step));
+    for (let i=0;i<=n;i++) box(.09,h,.06,fm,t/2,(o.lo+o.hi)/2,o.a+len*i/n,g);
+    const ys = S.glass==='full' ? [o.lo+.03,1.0,o.hi-.03] : S.glass==='tall' ? [o.lo+.03,2.6,o.hi-.03] : [o.lo+.03,o.hi-.03];
+    for (const y of ys) box(.09,.06,len,fm,t/2,y,(o.a+o.b)/2,g,false);
+    if (S.feature==='canopy') box(.04,.04,len,M.led,-.02,o.hi+.08,(o.a+o.b)/2,g,false);
+  }
+
+  // roof
+  if (S.roof==='flat'){
+    const o = .1, ft = .16, fy = Hw+Hf/2;
+    const fm = own(new THREE.MeshStandardMaterial({color:S.fascia, roughness:.4, metalness:.25}));
+    box(W+2*o,Hf,ft,fm,W/2,fy,L+o-ft/2,g); box(W+2*o,Hf,ft,fm,W/2,fy,-o+ft/2,g);
+    box(ft,Hf,L+2*o-2*ft,fm,-o+ft/2,fy,L/2,g); box(ft,Hf,L+2*o-2*ft,fm,W+o-ft/2,fy,L/2,g);
+    if (S.feature!=='portal'){ signPlane(g, W+2*o-.4, Hf*.8, W/2, fy, L+o+.006); signPlane(g, W+2*o-.4, Hf*.8, W/2, fy, -o-.006, Math.PI); }
+    if (S.feature==='canopy') for (const z of [L+o+.01, -o-.01]) box(W+2*o,.04,.03,M.led,W/2,Hw+.02,z,g,false);
+    if (!S.cutaway){ const yH = Hw+Hf-.12, yL = Hw+.3, span = W+2*o-2*ft; const rr = box(span/Math.cos(Math.atan((yH-yL)/span)),.15,L+2*o-2*ft,M.roof,W/2,(yH+yL)/2,L/2,g); rr.rotation.z = -Math.atan((yH-yL)/span);
+      for (const z of [L*.3,L*.7]) box(.6,.04,1.2,M.lamp,cx,Hw-.03,z,g,false); }
+  } else if (S.roof==='gable'){
+    const {pitch, rise} = Y, ov = .4, s = W/2+ov, len = s/Math.cos(pitch);
+    // gables
+    const shape = new THREE.Shape(); shape.moveTo(0,0); shape.lineTo(W,0); shape.lineTo(W/2,rise); shape.lineTo(0,0);
+    const gg = own(new THREE.ExtrudeGeometry(shape,{depth:t, bevelEnabled:false}));
+    const gmat = texMat(profTex, W/1.0, 1, S.wall, {metalness:.35, roughness:.45});
+    for (const z of [L-t, 0]){ const m = new THREE.Mesh(gg, gmat); m.position.set(0,Hw,z); m.castShadow = m.receiveShadow = true; g.add(m); }
+    if (!S.cutaway){
+      for (const sgn of [-1,1]){ const rr = box(len,.16,L+.8,M.roofDark, W/2 + sgn*s/2, Hw+rise-(s/2)*Math.tan(pitch)+.1, L/2, g); rr.rotation.z = -sgn*pitch; }
+      box(.14,.14,L+.8,M.roofDark,W/2,Hw+rise+.14,L/2,g);
+      for (const z of [L*.3,L*.7]) box(.6,.04,1.2,M.lamp,cx,Hw-.03,z,g,false);
+    }
+    // gutters
+    for (const x of [-ov+.05, W+ov-.05]) box(.12,.1,L+.8,M.steelDark,x,Hw-.02-ov*Math.tan(pitch),L/2,g,false);
+    for (const x of [-.25, W+.25]) for (const z of [.15, L-.15]){ const m = new THREE.Mesh(own(new THREE.CylinderGeometry(.05,.05,Hw,10)), M.steelDark); m.position.set(x,Hw/2,z); g.add(m); }
+    // sign above entry gate
+    signPlane(g, Wp-.7, .6, cx, (gateH+Hw)/2+.05, L+.012);
+    signPlane(g, Wp-.7, .6, cx, (gateH+Hw)/2+.05, -.012, Math.PI);
+  }
+
+  if (S.roof==='shed'){
+    const o = .1, hF = 2.0, hB = .6, vis = 1.2;
+    const am = own(new THREE.MeshStandardMaterial({color:S.fascia, roughness:.4, metalness:.25}));
+    const acc = own(new THREE.MeshStandardMaterial({color:S.accent, roughness:.45, metalness:.2}));
+    const sh = new THREE.Shape(); sh.moveTo(-o,0); sh.lineTo(L+vis,0); sh.lineTo(L+vis,hF); sh.lineTo(-o,hB); sh.lineTo(-o,0);
+    const geo = own(new THREE.ExtrudeGeometry(sh,{depth:.15, bevelEnabled:false}));
+    for (const x of [-o, W+o-.15]){ const m = new THREE.Mesh(geo, am); m.rotation.y = -Math.PI/2; m.position.set(x+.15, Hw, 0); m.castShadow = m.receiveShadow = true; g.add(m); }
+    box(W+2*o,hF,.15,am,W/2,Hw+hF/2,L+vis-.075,g);
+    box(W+2*o,hB,.15,am,W/2,Hw+hB/2,-o+.075,g);
+    box(W+2*o,.06,vis,am,W/2,Hw+.03,L+vis/2,g);
+    box(W+2*o,.03,.05,M.ledWhite,W/2,Hw-.01,L+vis-.2,g,false);
+    const dz = L+vis+o, dy = hF-hB, ln = Math.hypot(dz,dy), ang = Math.atan2(dy,dz);
+    // orange edge along the sloped top and under the attic
+    for (const x of [-o-.01, W+o+.01]){ const e = box(.04,.14,ln,acc,x,Hw+(hF+hB)/2-.07,(L+vis-o)/2,g,false); e.rotation.x = -ang; }
+    for (const z of [L+vis+.01, -o-.01]) box(W+2*o,.12,.03,acc,W/2,Hw+.06,z,g,false);
+    if (!S.cutaway){ const rr = box(W+2*o-.3,.15,ln,M.roof,W/2,Hw+(hF+hB)/2-.15,(L+vis-o)/2,g); rr.rotation.x = -ang;
+      for (const z of [L*.3,L*.7]) box(.6,.04,1.2,M.lamp,cx,Hw-.03,z,g,false); }
+    signPlane(g, W+2*o-.5, hF*.55, W/2, Hw+hF*.52, L+vis+.006);
+    signPlane(g, W+2*o-.5, hB*.8, W/2, Hw+hB/2, -o-.086, Math.PI);
+    terminal(g, Y.gx1+.7, L+.8);
+  }
+  if (S.roof==='pav'){
+    const ov = 1.6, th = Hf, y0 = Hw+.2;
+    const em = own(new THREE.MeshStandardMaterial({color:S.fascia, roughness:.35, metalness:.2}));
+    box(W+.02,.2,L+.02,M.frame,W/2,Hw+.1,L/2,g,false);
+    if (!S.cutaway){
+      box(W+2*ov,th,L+2*ov,em,W/2,y0+th/2,L/2,g);
+      box(W+2*ov-.04,.02,L+2*ov-.04,woodMat(W+2*ov,1),W/2,y0-.011,L/2,g,false);
+      for (let x=-ov+.5; x<=W+ov-.4; x+=1.5) for (const z of [-ov+.5, L+ov-.5]) box(.18,.02,.18,M.lamp,x,y0-.025,z,g,false);
+      for (let z=-ov+2; z<=L+ov-2; z+=1.5) for (const x of [-ov+.5, W+ov-.5]) box(.18,.02,.18,M.lamp,x,y0-.025,z,g,false);
+      for (const z of [L*.3,L*.7]) box(.6,.04,1.2,M.lamp,cx,Hw-.03,z,g,false);
+    }
+    for (const x of [-ov+.35, W+ov-.35]) for (const z of [-ov+.35, L+ov-.35]){ const m = new THREE.Mesh(own(new THREE.CylinderGeometry(.09,.09,y0,16)), M.frame); m.position.set(x,y0/2,z); m.castShadow = true; g.add(m); }
+    signPlane(g, W+2*ov-1, th*.75, W/2, y0+th/2, L+ov+.006);
+    signPlane(g, W+2*ov-1, th*.75, W/2, y0+th/2, -ov-.006, Math.PI);
+    terminal(g, Y.gx1+.6, L+1.0);
+  }
+
+  // concept features
+  if (S.feature==='fins' && Y.side.length){
+    const o = Y.side[0], len = o.b-o.a, n = Math.max(2,Math.round(len/.9));
+    const acc = own(new THREE.MeshStandardMaterial({color:S.accent, roughness:.45, metalness:.2}));
+    for (let i=1;i<n;i+=2) box(.45,o.hi-o.lo+.5,.08,acc,-.2,(o.lo+o.hi)/2+.25,o.a+len*i/n,g);
+  }
+  if (S.feature==='portal'){
+    const D = 1.4, H = Hw+Hf+.3, lw = .6, tb = 1.1;
+    const pm = own(new THREE.MeshStandardMaterial({color:S.accent, roughness:.35, metalness:.2}));
+    for (const side of [1,-1]){
+      const zc = side>0 ? L+D/2 : -D/2;
+      box(lw,H,D,pm,-lw/2,H/2,zc,g); box(lw,H,D,pm,Wp+lw/2,H/2,zc,g);
+      box(Wp+2*lw,tb,D,pm,Wp/2,H-tb/2,zc,g);
+      const ze = side>0 ? L+D-.04 : -D+.04;
+      box(.04,H-tb,.04,M.ledWhite,.03,(H-tb)/2,ze,g,false); box(.04,H-tb,.04,M.ledWhite,Wp-.03,(H-tb)/2,ze,g,false); box(Wp,.04,.04,M.ledWhite,Wp/2,H-tb-.03,ze,g,false);
+      signPlane(g, Wp+2*lw-.3, tb*.8, Wp/2, H-tb/2, side>0 ? L+D+.006 : -D-.006, side>0 ? 0 : Math.PI);
+    }
+    terminal(g, Wp+1.1, L+2.4);
+  }
+  if (S.feature==='canopy'){
+    const cw = Wp+1.4, cd = 3.2, cm = own(new THREE.MeshStandardMaterial({color:S.fascia, roughness:.45, metalness:.3}));
+    box(cw,.28,cd,cm,Wp/2,Hw-.14,L+cd/2,g);
+    box(cw,.03,.05,M.led,Wp/2,Hw-.29,L+cd-.03,g,false);
+    for (const x of [-.55, Wp+.55]){ const m = new THREE.Mesh(own(new THREE.CylinderGeometry(.08,.08,Hw-.28,16)), M.frame); m.position.set(x,(Hw-.28)/2,L+cd-.3); m.castShadow = true; g.add(m); }
+    box(1.2,.03,1.2,M.lamp,Wp/2,Hw-.3,L+1.6,g,false);
+    terminal(g, Wp-.1, L+2.1);
+  }
+  if (S.feature==='planken'){
+    const tech = o => o.filter(x=>x.a>=Wp-.01);
+    wallX(g, L+.03, Wp, W, Hw, .04, tech(Y.front), woodMat);
+    wallX(g, -.03, Wp, W, Hw, .04, tech(Y.back), woodMat);
+    terminal(g, -.2, L+1.9);
+  }
+
+  // interior light
+  const pl = new THREE.PointLight(0xffffff, 18, 14, 1.6); pl.position.set(cx, Hw-.5, L/2); g.add(pl);
+  buildR360(g, cx, L/2, Math.min(3.9,Wp-.5), Math.min(7,L-1), Math.min(3.38,Hw-.15));
+  const c1 = makeCar('#e7e9eb'); c1.position.set(cx,0,L/2); c1.rotation.y = Math.PI; g.add(c1);
+  const c2 = makeCar(key==='portal' ? '#284a7a' : key==='vitrina' ? '#9b1c1c' : '#3c4a3f'); c2.position.set(cx,0,L+5.6); c2.rotation.y = Math.PI; g.add(c2);
+
+  road.clear(); const rz = L/2+10.5;
+  const rm = new THREE.Mesh(new THREE.PlaneGeometry(120,7.5), M.asphalt); rm.rotation.x = -Math.PI/2; rm.position.set(0,.01,rz); rm.receiveShadow = true; road.add(rm);
+  for (let x=-60;x<60;x+=4){ const d = new THREE.Mesh(new THREE.PlaneGeometry(2,.14), M.paint); d.rotation.x = -Math.PI/2; d.position.set(x,.015,rz); road.add(d); }
+  const R = Math.max(W,L)/2+9; Object.assign(sun.shadow.camera,{left:-R,right:R,top:R,bottom:-R,near:1,far:80}); sun.shadow.camera.updateProjectionMatrix();
+}
+function buildR360(g,cx,cz,fw,fl,fh){
+  const grp = new THREE.Group(); grp.position.set(cx,0,cz); g.add(grp);
+  for (const sx of [-1,1]) for (const z of [-fl/2,0,fl/2]){ box(.14,fh,.14,M.steel,sx*fw/2,fh/2,z,grp); box(.36,.02,.36,M.steelDark,sx*fw/2,.07,z,grp,false); }
+  for (const sx of [-1,1]) box(.12,.16,fl+.14,M.steel,sx*fw/2,fh-.08,0,grp);
+  for (const z of [-fl/2,fl/2]) box(fw,.14,.14,M.steel,0,fh-.1,z,grp);
+  const bridge = new THREE.Group(); grp.add(bridge);
+  for (const sx of [-1,1]) box(.3,.22,.5,M.steelDark,sx*fw/2,fh+.1,0,bridge);
+  box(fw,.16,.26,M.steel,0,fh+.12,0,bridge); rbox(.9,.55,.9,.06,M.shell,0,fh-.2,0,bridge);
+  box(.92,.08,.92,M.red,0,fh-.02,0,bridge,false); box(.93,.03,.93,M.led,0,fh-.46,0,bridge,false);
+  const R = 1.3, pY = fh-.5, vl = pY-.35, arm = new THREE.Group(); arm.position.y = pY; bridge.add(arm);
+  box(R,.09,.09,M.steel,R/2,-.08,0,arm); box(.09,vl,.09,M.steel,R,-vl/2-.08,0,arm);
+  const spray = new THREE.Mesh(own(new THREE.PlaneGeometry(.7,vl)), M.spray); spray.position.set(R-.38,-vl/2-.08,0); arm.add(spray);
+  anim.r360 = {bridge, arm, spray, d:Math.min(2.3, fl/2-.2)};
+}
+
+/* ================= materials calc ================= */
+const K = { tube100:14.5, tube80:7.07, tube60:5.2, tube120:17.6, colPlates:22.5, beamPlates:15, purlinPlates:4.4, anchor:.92 };
+function calc(){
+  const Y = layout(); const {L,Wp,Wt,W,Hw,Hf,gateW,gateH,rise,pitch} = Y;
+  const rows = []; const add = (grp,name,spec,qty,unit,note='') => rows.push({grp,name,spec,qty,unit,note});
+  const area = ops => ops.reduce((s,o)=>s+(o.b-o.a)*(o.hi-o.lo),0);
+  const gable = S.roof==='gable';
+
+  // --- steel frame
+  const nz = Math.ceil(L/3)+1, nx = 3, nCol = nx*nz;
+  const colH = gable ? Hw+rise*.35+.1 : S.roof==='shed' ? Hw+1.1 : Hw+.55;
+  const kCol = nCol*(colH*K.tube100+K.colPlates);
+  const beamLen = gable ? (W+.8)/Math.cos(pitch) : W+.2;
+  const kBeam = nz*(beamLen*K.tube100+K.beamPlates);
+  const pav = S.roof==='pav', shedR = S.roof==='shed';
+  const pLines = Math.ceil((gable ? W+.8 : pav ? W+3.2 : W)/1.65)+1;
+  const kPurl = pLines*(gable?L+.8:pav?L+3.2:shedR?L+1.3:L)*K.tube100 + pLines*(nz-1)*K.purlinPlates;
+  const girdLen = 2*(2*(W+L)) + 2*L + 2*Wt;
+  const kGird = girdLen*K.tube80;
+  const kGate = 2*((2*(gateH+.3)+gateW+.4)*K.tube100);
+  const kDoor = (Y.doors.length+1)*(2*2.3+1.2)*K.tube80;
+  let kExtra = 0, extraName = '';
+  if (S.feature==='portal'){ const H = Hw+Hf+.3; kExtra = 2*(2*(2*H+Wp+1.2)+8*1.4)*K.tube60; extraName = 'Подсистема порталов, труба 60×60×3'; }
+  if (S.feature==='canopy'){ kExtra = 2*3.4*K.tube120 + 2*Hw*K.tube100 + 4*(Wp+1.4)*K.tube60; extraName = 'Козырёк: консоли 120×120×5, стойки, прогоны'; }
+  if (shedR){ const ln = 3*2*(W+L+1.2) + 2*(W+L)*1.3; kExtra = ln*K.tube60 + (Math.ceil(W/1.5)+1)*1.4*K.tube100 + 20*K.tube60*.4; extraName = 'Подсистема аттика, рёбер и козырька, труба 60×60×3 / 100×100×5'; }
+  if (pav){ kExtra = nz*2*1.8*K.tube120 + 2*(W+L+6.4)*K.tube100 + 4*(Hw+.2)*K.tube100; extraName = 'Консоли навеса 120×120×5, обвязка кромки, 4 колонны'; }
+  if (S.feature==='planken'){ kExtra = 2*Wt*Hw/0.6*K.tube60*0.45; extraName = 'Обрешётка под ламели, профиль 40×20'; }
+  const nAnch = nCol*4 + 4*2 + (S.feature==='canopy'?8:0) + (pav?16:0);
+  const kAnch = nAnch*K.anchor;
+  const kSum = (kCol+kBeam+kPurl+kGird+kGate+kDoor+kExtra+kAnch)*1.05;
+  add('Металлокаркас (сталь С245)','Стойки каркаса','труба 100×100×5 + опорные пластины',kCol,'кг',`${nCol} шт, шаг 3 м`);
+  add('Металлокаркас (сталь С245)','Главные балки', gable?'труба 100×100×5, стропила 12°':'труба 100×100×5',kBeam,'кг',`${nz} шт`);
+  add('Металлокаркас (сталь С245)','Кровельные прогоны','труба 100×100×5',kPurl,'кг',`${pLines} линий`);
+  add('Металлокаркас (сталь С245)','Стеновые ригели','труба 80×80×3, 2 яруса',kGird,'кг',`${fmt(girdLen,0)} м.п.`);
+  add('Металлокаркас (сталь С245)','Обрамление ворот','труба 100×100×5',kGate,'кг','2 проёма');
+  add('Металлокаркас (сталь С245)','Обрамление дверей и окон','труба 80×80×3',kDoor,'кг');
+  if (kExtra) add('Металлокаркас (сталь С245)',extraName,'',kExtra,'кг');
+  add('Металлокаркас (сталь С245)','Анкерные болты М20×200','ГОСТ 24379.1',nAnch,'шт',`${fmt(kAnch,0)} кг`);
+  add('Металлокаркас (сталь С245)','Итого металл с узлами и метизами (+5%)','',kSum/1000,'т','',true);
+
+  // --- foundation
+  const sA = (W+.6)*(L+.6);
+  const b25 = sA*.2 + 1.2 + (S.feature==='canopy' ? 2*.6*.6*1.2 : 0) + (pav ? 4*.6*.6*1.2 : 0);
+  add('Фундамент','Бетон плиты B25 F200 W6','плита 200 мм + лоток мойки днища',b25,'м³', S.feature==='canopy'?'+ 2 столбчатых под козырёк':pav?'+ 4 столбчатых под колонны навеса':'');
+  add('Фундамент','Бетонная подготовка B7,5','100 мм',sA*.1,'м³');
+  add('Фундамент','Арматура А500 Ø10 + Ø8','сетки 200×200',sA*5.06,'кг');
+  add('Фундамент','Экструдированный пенополистирол','100 мм',sA*.1,'м³');
+  add('Фундамент','Песчаная подушка','с послойным уплотнением',sA*.48,'м³');
+  add('Фундамент','Гидроизоляция («Технониколь»)','',sA*1.1,'м²');
+
+  // --- envelope
+  const gablesA = gable ? W*rise : 0;
+  const wallGross = 2*(W+L)*Hw + gablesA;
+  const openA = area(Y.front)+area(Y.back)+area(Y.side);
+  const wallNet = wallGross - openA;
+  const partA = L*Hw + Wt*Hw - area(Y.part) - area(Y.opPart);
+  const roofA = gable ? 2*((W/2+.4)/Math.cos(pitch))*(L+.8) : pav ? (W+3.2)*(L+3.2) : shedR ? (W+.2)*Math.hypot(L+1.3,1.4) : (W+.2)*(L+.2);
+  add('Ограждающие конструкции', gable?'Стеновые сэндвич-панели + профлист':'Стеновые сэндвич-панели','100 мм, минвата НГ',wallNet,'м²','наружные стены за вычетом проёмов');
+  add('Ограждающие конструкции','Сэндвич-панели перегородок','100 мм',partA,'м²','бокс / техзона / операторская');
+  add('Ограждающие конструкции','Кровельные сэндвич-панели', gable?'150 мм, двускатная 12°':pav?'150 мм, вместе с навесом':shedR?'150 мм, уклон ~9° к выезду':'150 мм, уклон 5%',roofA,'м²');
+  const flash = 2*2*(W+L) + 4*Hw + 2*(2*gateH+gateW)*2 + Y.doors.length*(2*2.1+.95) + (gable?2*2*((W/2)/Math.cos(pitch)):0);
+  add('Ограждающие конструкции','Доборные элементы (отливы, углы, откосы)','оцинк. с полимером',flash,'м.п.');
+  add('Ограждающие конструкции','Водосток', gable?'желоб + трубы Ø100':pav?'желоб по кромке, трубы в колоннах':shedR?'желоб за задним аттиком + трубы':'внутренний / трубы Ø100', gable?2*(L+.8)+4*Hw:pav?2*(W+L+6.4)+4*Hw:shedR?W+.2+2*Hw:2*Hw+4,'м.п.');
+
+  // --- openings
+  add('Проёмы',S.gate==='glass'?'Ворота секционные панорамные':'Ворота секционные с окнами',`${fmt(gateW,1)} × ${fmt(gateH,1)} м, автоматика`,2,'шт');
+  if (Y.side.length) add('Проёмы', S.glass==='ribbon'?'Ленточное окно (ПВХ)':'Витраж алюминиевый', S.glass==='tall'?'во всю высоту стены':'', area(Y.side),'м²');
+  add('Проёмы','Двери металлические утеплённые','950 × 2100',Y.doors.length,'шт');
+  add('Проёмы','Дверь межкомнатная ПВХ','900 × 2050',1,'шт');
+  add('Проёмы','Окна ПВХ','техзона + операторская',Y.wins.length+1,'шт');
+
+  // --- facade & concept features
+  if (S.roof==='flat') add('Фасад и отделка','Композитные панели фриза','алюкобонд, h = '+fmt(Hf,1)+' м',2*(W+L+.4)*Hf,'м²');
+  if (S.feature==='portal'){ const H = Hw+Hf+.3, D = 1.4; const pA = 2*(2*H*(2*D+.6) + (Wp+1.2)*(1.1+2*D)); add('Фасад и отделка','Облицовка порталов','композит RAL 3020, 2 портала',pA,'м²'); add('Фасад и отделка','LED-контур порталов','лента в профиле IP67',2*(2*(H-1.1)+Wp),'м.п.'); }
+  if (S.feature==='canopy'){ add('Фасад и отделка','Козырёк над въездом','композит + кровля, '+fmt(Wp+1.4,1)+' × 3,2 м',(Wp+1.4)*3.2*2,'м²','верх + низ'); add('Фасад и отделка','LED-линии','витраж, фриз, козырёк',(L-.6)+2*(W+.2)+(Wp+1.4),'м.п.'); }
+  if (shedR){ const aA = 2*(L+1.3)*(2.0+.6)/2 + (W+.2)*2.0 + (W+.2)*.6; add('Фасад и отделка','Композит аттика','с внутренней стороной парапета',aA*1.8,'м²'); add('Фасад и отделка','Подшивка козырька','композит',(W+.2)*1.2,'м²'); const nf = Math.floor((Math.max(2,Math.round((L-.6)/.9)))/2); add('Фасад и отделка','Оранжевые рёбра витража','композит, 450 × 3500',nf,'шт'); add('Фасад и отделка','LED под козырьком','',W+.2,'м.п.'); }
+  if (pav){ add('Фасад и отделка','Кромка навеса','композит, h = '+fmt(Hf,2)+' м',2*(W+L+6.4)*Hf,'м²'); add('Фасад и отделка','Подшивка навеса под дерево','планкен / панели',(W+3.2)*(L+3.2)-W*L,'м²'); add('Фасад и отделка','Светильники в подшивке','downlight IP65',Math.round(2*(W+L+6.4)/1.5),'шт'); add('Фасад и отделка','Колонны навеса','труба Ø159 или 100×100, окраска',4,'шт','в металле учтены'); }
+  if (S.feature==='planken'){ const pA = 2*Wt*Hw - (area(Y.front.filter(o=>o.a>=Wp-.01))+area(Y.back.filter(o=>o.a>=Wp-.01))); add('Фасад и отделка','Ламели под дерево (планкен)','термососна / фиброцемент',pA,'м²','техзона, въезд и выезд'); }
+  add('Фасад и отделка','Световая вывеска', S.sign, 2,'шт', S.feature==='portal'?'на порталах':S.roof==='gable'?'над воротами':shedR?'на аттике':pav?'на кромке навеса':'на фризе');
+  add('Фасад и отделка','Покрытие пола бокса','полимер/топпинг',(Wp-.12)*(L-.24),'м²');
+  add('Фасад и отделка','Керамогранит техзоны','',(Wt-.12)*(L-.24),'м²');
+
+  const sumPanels = wallNet + partA + roofA;
+  return {rows, kSum, b25, sumPanels, W, L, Wp, Wt, Hw};
+}
+
+/* ================= UI ================= */
+const fmt = (v,d=1) => Number(v).toLocaleString('ru-RU',{minimumFractionDigits:d, maximumFractionDigits:d});
+const fmtQ = (v,u) => u==='шт' ? fmt(v,0) : u==='т' ? fmt(v,2) : u==='кг' ? fmt(Math.round(v/5)*5,0) : fmt(v,1);
+function renderPanel(){
+  const R = calc(); let last = '';
+  const kp = [['Застройка',`${fmt(R.W*R.L,1)} м²`],['Металл',`${fmt(R.kSum/1000,2)} т`],['Бетон B25',`${fmt(R.b25,1)} м³`],['Сэндвич',`${fmt(R.sumPanels,0)} м²`]];
+  document.getElementById('kpis').innerHTML = kp.map(([a,b])=>`<div class="kpi"><span>${a}</span><b>${b}</b></div>`).join('');
+  document.getElementById('fit').innerHTML = [`Бокс ${fmt(R.Wp)} × ${fmt(R.L)} ≥ 5,0 × 8,0 ✓`,`Высота ${fmt(R.Hw,2)} ≥ 3,78 ✓`,`Техзона ${fmt(R.Wt)} ≥ 2,5 ✓`].map(s=>`<span>${s}</span>`).join('');
+  let h = '<thead><tr><th>Позиция</th><th style="text-align:right">Кол-во</th></tr></thead><tbody>';
+  for (const r of R.rows){
+    if (r.grp !== last){ h += `<tr class="grp"><td colspan="2">${r.grp}</td></tr>`; last = r.grp; }
+    const tot = r.name.startsWith('Итого');
+    h += `<tr${tot?' class="tot"':''}><td>${r.name}${r.spec||r.note?`<small>${[r.spec,r.note].filter(Boolean).join(' · ')}</small>`:''}</td><td class="q">${fmtQ(r.qty,r.unit)} ${r.unit}</td></tr>`;
+  }
+  document.getElementById('tbl').innerHTML = h + '</tbody>';
+  window.__tsv = ['Раздел\tПозиция\tХарактеристика\tКол-во\tЕд.\tПримечание', ...R.rows.map(r=>[r.grp,r.name,r.spec,fmtQ(r.qty,r.unit),r.unit,r.note].join('\t'))].join('\n');
+  const c = CONCEPTS[key];
+  document.getElementById('caption').innerHTML = `<b>${c.name}</b> · ${fmt(R.W)} × ${fmt(R.L)} м<p>${c.desc}</p>`;
+}
+function renderTabs(){
+  document.getElementById('tabs').innerHTML = Object.entries(CONCEPTS).map(([k,c])=>
+    `<button class="tab${k===key?' on':''}" data-k="${k}"><b><span class="sw">${c.sw.map(s=>`<i style="background:${s}"></i>`).join('')}</span>${c.name}</b><small>${c.tag}</small></button>`).join('');
+  document.querySelectorAll('.tab').forEach(b=>b.addEventListener('click',()=>{ const keep = {L:S.L, Wp:S.Wp, Wt:S.Wt}; key = b.dataset.k; S = {...CONCEPTS[key], ...keep, cutaway:S.cutaway}; renderTabs(); build(); renderPanel(); }));
+}
+for (const k of ['L','Wp','Wt']){
+  const el = document.getElementById(k);
+  el.addEventListener('input', ()=>{ S[k] = +el.value; document.getElementById('o'+k).textContent = fmt(S[k]); schedule(); });
+}
+function syncSliders(){ for (const k of ['L','Wp','Wt']){ document.getElementById(k).value = S[k]; document.getElementById('o'+k).textContent = fmt(S[k]); } }
+let pend = false; function schedule(){ if (pend) return; pend = true; requestAnimationFrame(()=>{ pend = false; build(); renderPanel(); }); }
+
+document.getElementById('copy').addEventListener('click', async ()=>{
+  const tsv = window.__tsv || ''; const toast = document.getElementById('toast');
+  try { await navigator.clipboard.writeText(tsv); toast.textContent = 'Скопировано — вставьте в Excel'; }
+  catch(e){ const ta = document.getElementById('copyArea'); ta.value = tsv; ta.select(); try { document.execCommand('copy'); toast.textContent = 'Скопировано — вставьте в Excel'; } catch(_){ toast.textContent = 'Не удалось скопировать'; } }
+  toast.hidden = false; setTimeout(()=>toast.hidden = true, 2500);
+});
+document.getElementById('shot').addEventListener('click', ()=>{ renderer.render(scene,camera); document.getElementById('shotImg').src = canvas.toDataURL('image/png'); document.getElementById('modal').hidden = false; });
+document.getElementById('closeShot').addEventListener('click', ()=>document.getElementById('modal').hidden = true);
+document.getElementById('modal').addEventListener('click', e=>{ if (e.target.id==='modal') e.target.hidden = true; });
+
+/* ================= views ================= */
+let tween = null, cur = 'iso';
+function pose(v){ const {W,L,Wp} = bld.userData, D = Math.max(W,L);
+  switch(v){
+    case 'front': return {p:[-1, 2.4, L/2+D*1.35+4], t:[0,2.3,0]};
+    case 'back':  return {p:[1, 2.6, -(L/2+D*1.3+3)], t:[0,2.3,0]};
+    case 'side':  return {p:[-(W/2+D*1.3+3), 2.6, L*.15], t:[0,2.1,0]};
+    case 'top':   return {p:[0, D*2.4+6, .001], t:[0,0,0]};
+    case 'inside':return {p:[.55-W/2, 2.5, L/2-.45], t:[Wp*.7-W/2, 1.0, L*.3-L/2]};
+    default:      return {p:[-(W/2+D*.85+3), D*.5+3, L/2+D*1.05+4], t:[0,1.8,0]};
+  } }
+function setView(v, instant){
+  cur = v; document.querySelectorAll('#views .btn').forEach(b=>b.classList.toggle('on', b.dataset.view===v));
+  const want = v==='top'; if (!!S.cutaway !== want){ S.cutaway = want; build(); }
+  const P = pose(v), to = {p:new THREE.Vector3(...P.p), t:new THREE.Vector3(...P.t)};
+  if (instant || matchMedia('(prefers-reduced-motion: reduce)').matches){ camera.position.copy(to.p); controls.target.copy(to.t); controls.update(); return; }
+  tween = {from:{p:camera.position.clone(), t:controls.target.clone()}, to, t0:performance.now(), dur:850};
+}
+document.querySelectorAll('#views .btn').forEach(b=>b.addEventListener('click', ()=>setView(b.dataset.view)));
+
+/* ================= loop ================= */
+function resize(){ const w = vp.clientWidth, h = vp.clientHeight; renderer.setSize(w,h,false); camera.aspect = w/Math.max(h,1); camera.updateProjectionMatrix(); }
+new ResizeObserver(resize).observe(vp);
+const ease = x => x<.5 ? 4*x*x*x : 1-Math.pow(-2*x+2,3)/2, sm = x => x*x*(3-2*x);
+let T = 0, last = performance.now();
+function tick(now){
+  const dt = Math.min(.05,(now-last)/1000); last = now; T += dt;
+  if (tween){ const k = Math.min(1,(now-tween.t0)/tween.dur), e = ease(k); camera.position.lerpVectors(tween.from.p,tween.to.p,e); controls.target.lerpVectors(tween.from.t,tween.to.t,e); if (k>=1) tween = null; }
+  if (anim.r360){ const a = anim.r360, u = (T/4)%4, i = Math.floor(u), f = sm(u-i); let z, th;
+    if (i===0){ z = -a.d+2*a.d*f; th = 0; } else if (i===1){ z = a.d; th = -Math.PI*f; } else if (i===2){ z = a.d-2*a.d*f; th = -Math.PI; } else { z = -a.d; th = -Math.PI-Math.PI*f; }
+    a.bridge.position.z = z; a.arm.rotation.y = th; a.spray.material.opacity = .1+Math.random()*.1; }
+  controls.update(); renderer.render(scene,camera); requestAnimationFrame(tick);
+}
+syncSliders(); renderTabs();
+try { await Promise.race([document.fonts.load('800 64px Onest'), new Promise(r=>setTimeout(r,1500))]); } catch(e){}
+build(); renderPanel(); resize(); setView('iso', true);
+document.getElementById('loading').hidden = true;
+requestAnimationFrame(tick);
+</script>
+</body></html>
